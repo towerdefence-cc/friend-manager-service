@@ -22,6 +22,7 @@ import java.util.UUID;
 public class FriendService {
     private final FriendConnectionRepository friendConnectionRepository;
     private final PendingFriendConnectionRepository pendingFriendConnectionRepository;
+    private final FriendNotificationService notificationService;
 
     public Pair<FriendProto.AddFriendResponse.AddFriendResult, FriendConnection> addFriendRequest(FriendProto.AddFriendRequest request) {
         UUID issuerId = UUID.fromString(request.getIssuerId());
@@ -51,9 +52,10 @@ public class FriendService {
         return Pair.of(FriendProto.AddFriendResponse.AddFriendResult.REQUEST_SENT, null);
     }
 
-    private FriendConnection createFriendConnection(UUID playerOneId, UUID playerTwoId) {
-        this.pendingFriendConnectionRepository.deleteByMutualRequesterIdAndTargetId(playerOneId, playerTwoId); // use mutual so it doesn't matter what around they are.
-        return this.friendConnectionRepository.insert(new FriendConnection(ObjectId.get(), playerOneId, playerTwoId));
+    private FriendConnection createFriendConnection(UUID issuerId, UUID targetId) {
+        this.notificationService.notifyFriendAdd(issuerId, targetId);
+        this.pendingFriendConnectionRepository.deleteByMutualRequesterIdAndTargetId(issuerId, targetId); // use mutual so it doesn't matter what around they are.
+        return this.friendConnectionRepository.insert(new FriendConnection(ObjectId.get(), issuerId, targetId));
     }
 
     private void createPendingFriendConnection(UUID requesterId, UUID targetId) {

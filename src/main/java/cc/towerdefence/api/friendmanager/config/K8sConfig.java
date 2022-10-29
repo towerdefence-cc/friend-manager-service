@@ -1,6 +1,7 @@
 package cc.towerdefence.api.friendmanager.config;
 
 import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.Config;
 import org.springframework.context.annotation.Bean;
