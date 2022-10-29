@@ -51,7 +51,7 @@ public class FriendNotificationService {
         System.out.println("Server ID: " + serverId);
 
         try {
-            V1Pod pod = this.kubernetesClient.readNamespacedPod(serverId, "default", null);
+            V1Pod pod = this.kubernetesClient.readNamespacedPod(serverId, "towerdefence", null);
             System.out.println("Pod: " + pod);
             return pod.getSpec().getHostname();
         } catch (ApiException e) {
