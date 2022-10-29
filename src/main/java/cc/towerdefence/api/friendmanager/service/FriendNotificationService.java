@@ -26,6 +26,7 @@ public class FriendNotificationService {
     @Async
     public void notifyFriendAdd(UUID issuerId, UUID targetId) {
         String targetServerIp = this.getServerIpForPlayer(targetId);
+        System.out.println("Target server ip: " + targetServerIp);
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(targetServerIp, 9090)
                 .usePlaintext()
@@ -53,7 +54,7 @@ public class FriendNotificationService {
         try {
             V1Pod pod = this.kubernetesClient.readNamespacedPod(proxyId, "towerdefence", null);
             System.out.println("Pod: " + pod);
-            return pod.getSpec().getHostname();
+            return pod.getStatus().getPodIP();
         } catch (ApiException e) {
             System.out.println("Exception: " + e.getCode() + " " + e.getMessage() + " " + e.getResponseBody() + " " + e.getLocalizedMessage());
             e.printStackTrace();
