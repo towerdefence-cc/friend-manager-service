@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,34 +28,69 @@ public class FriendNotificationService {
 
     @Async
     public void notifyFriendRequest(UUID issuerId, String issuerUsername, UUID targetId) {
-        String targetServerIp = this.getServerIpForPlayer(targetId);
+        this.getServerIpForPlayer(targetId).ifPresent(targetServerIp -> {
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(targetServerIp, 9090)
+                    .usePlaintext()
+                    .build();
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(targetServerIp, 9090)
-                .usePlaintext()
-                .build();
+            VelocityFriendGrpc.VelocityFriendBlockingStub stub = VelocityFriendGrpc.newBlockingStub(channel);
 
-        VelocityFriendGrpc.VelocityFriendBlockingStub stub = VelocityFriendGrpc.newBlockingStub(channel);
-
-        stub.receiveFriendRequest(VelocityFriendProto.ReceiveFriendRequestRequest.newBuilder()
-                .setSenderId(issuerId.toString())
-                .setSenderUsername(issuerUsername)
-                .setRecipientId(targetId.toString())
-                .build());
+            stub.receiveFriendRequest(VelocityFriendProto.ReceiveFriendRequestRequest.newBuilder()
+                    .setSenderId(issuerId.toString())
+                    .setSenderUsername(issuerUsername)
+                    .setRecipientId(targetId.toString())
+                    .build());
+        });
     }
 
-    public String getServerIpForPlayer(UUID playerId) {
+    @Async
+    public void notifyFriendAdded(UUID issuerId, String issuerUsername, UUID targetId) {
+        this.getServerIpForPlayer(targetId).ifPresent(targetServerIp -> {
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(targetServerIp, 9090)
+                    .usePlaintext()
+                    .build();
+
+            VelocityFriendGrpc.VelocityFriendBlockingStub stub = VelocityFriendGrpc.newBlockingStub(channel);
+
+            stub.receiveFriendAdded(VelocityFriendProto.ReceiveFriendAddedRequest.newBuilder()
+                    .setSenderId(issuerId.toString())
+                    .setSenderUsername(issuerUsername)
+                    .setRecipientId(targetId.toString())
+                    .build());
+        });
+    }
+
+    @Async
+    public void notifyFriendRemoved(UUID issuerId, UUID targetId) {
+        this.getServerIpForPlayer(targetId).ifPresent(targetServerIp -> {
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(targetServerIp, 9090)
+                    .usePlaintext()
+                    .build();
+
+            VelocityFriendGrpc.VelocityFriendBlockingStub stub = VelocityFriendGrpc.newBlockingStub(channel);
+
+            stub.receiveFriendRemoved(VelocityFriendProto.ReceiveFriendRemovedRequest.newBuilder()
+                    .setSenderId(issuerId.toString())
+                    .setRecipientId(targetId.toString())
+                    .build());
+        });
+    }
+
+    public Optional<String> getServerIpForPlayer(UUID playerId) {
         PlayerTrackerProto.GetPlayerServerResponse response = this.playerTracker.getPlayerServer(PlayerTrackerProto.GetPlayerServerRequest.newBuilder()
                 .setPlayerId(playerId.toString())
                 .build());
+
+        if (!response.hasServer()) return Optional.empty();
 
         String proxyId = response.getServer().getProxyId();
 
         try {
             V1Pod pod = this.kubernetesClient.readNamespacedPod(proxyId, "towerdefence", null);
-            return pod.getStatus().getPodIP();
+            return Optional.ofNullable(pod.getStatus().getPodIP());
         } catch (ApiException e) {
             LOGGER.error("Failed to get pod for proxy id {}:\nK8s Error: ({}) {}\n{}", proxyId, e.getCode(), e.getResponseBody(), e);
-            return null;
+            return Optional.empty();
         }
     }
 }

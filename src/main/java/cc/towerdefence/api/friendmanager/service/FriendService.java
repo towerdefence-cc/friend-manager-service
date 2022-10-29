@@ -37,7 +37,7 @@ public class FriendService {
         // check if already received a friend request from target
         boolean receivedRequest = this.pendingFriendConnectionRepository.findByRequesterIdAndTargetId(targetId, issuerId).isPresent();
         if (receivedRequest) {
-            FriendConnection connection = this.createFriendConnection(issuerId, targetId);
+            FriendConnection connection = this.createFriendConnection(issuerId, issuerUsername, targetId);
             return Pair.of(FriendProto.AddFriendResponse.AddFriendResult.FRIEND_ADDED, connection);
         }
 
@@ -50,8 +50,8 @@ public class FriendService {
         return Pair.of(FriendProto.AddFriendResponse.AddFriendResult.REQUEST_SENT, null);
     }
 
-    private FriendConnection createFriendConnection(UUID issuerId, UUID targetId) {
-        // todo notify friend add
+    private FriendConnection createFriendConnection(UUID issuerId, String issuerUsername, UUID targetId) {
+        this.notificationService.notifyFriendAdded(issuerId, issuerUsername, targetId);
         this.pendingFriendConnectionRepository.deleteByMutualRequesterIdAndTargetId(issuerId, targetId); // use mutual so it doesn't matter what around they are.
         return this.friendConnectionRepository.insert(new FriendConnection(ObjectId.get(), issuerId, targetId));
     }
@@ -66,9 +66,10 @@ public class FriendService {
         UUID targetId = UUID.fromString(request.getTargetId());
 
         long deleteResult = this.friendConnectionRepository.deleteByPlayerAndTargetId(issuerId, targetId);
+        if (deleteResult == 0) return FriendProto.RemoveFriendResponse.RemoveFriendResult.NOT_FRIENDS;
 
-        return deleteResult == 1 ? FriendProto.RemoveFriendResponse.RemoveFriendResult.REMOVED
-                : FriendProto.RemoveFriendResponse.RemoveFriendResult.NOT_FRIENDS;
+        this.notificationService.notifyFriendRemoved(issuerId, targetId);
+        return FriendProto.RemoveFriendResponse.RemoveFriendResult.REMOVED;
     }
 
     public FriendProto.DenyFriendRequestResponse.DenyFriendRequestResult denyFriendRequest(FriendProto.DenyFriendRequestRequest request) {
