@@ -53,14 +53,18 @@ public class FriendController extends FriendGrpc.FriendImplBase {
 
     @Override
     public void getFriendList(FriendProto.PlayerRequest request, StreamObserver<FriendProto.FriendListResponse> responseObserver) {
-        List<FriendConnection> result = this.friendService.getFriends(UUID.fromString(request.getIssuerId()));
+        UUID issuerId = UUID.fromString(request.getIssuerId());
+        List<FriendConnection> result = this.friendService.getFriends(issuerId);
 
         List<FriendProto.FriendListResponse.FriendListPlayer> friends = result
                 .stream()
-                .map(friendConnection -> FriendProto.FriendListResponse.FriendListPlayer.newBuilder()
-                        .setId(friendConnection.getPlayerOneId().toString())
-                        .setFriendsSince(Timestamp.newBuilder().setSeconds(friendConnection.getId().getTimestamp()).build())
-                        .build()
+                .map(friendConnection -> {
+                    UUID friendId = friendConnection.getPlayerOneId().equals(issuerId) ? friendConnection.getPlayerTwoId() : friendConnection.getPlayerOneId();
+                    return FriendProto.FriendListResponse.FriendListPlayer.newBuilder()
+                            .setId(friendId.toString())
+                            .setFriendsSince(Timestamp.newBuilder().setSeconds(friendConnection.getId().getTimestamp()).build())
+                            .build();
+                        }
                 ).toList();
 
         responseObserver.onNext(FriendProto.FriendListResponse.newBuilder()
