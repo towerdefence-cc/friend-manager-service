@@ -1,6 +1,5 @@
 package cc.towerdefence.api.friendmanager.repository;
 
-import cc.towerdefence.api.friendmanager.model.FriendConnection;
 import cc.towerdefence.api.friendmanager.model.PendingFriendConnection;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
@@ -23,5 +22,5 @@ public interface PendingFriendConnectionRepository extends MongoRepository<Pendi
     int deleteByRequesterIdAndTargetId(UUID requesterId, UUID targetId);
 
     @Query(value = "{$and: [{$or: [ {'requesterId': ?0}, {'requesterId': ?1} ]}, {$or: [ {'targetId': ?0}, {'targetId': ?1} ]}]}", delete = true)
-    int deleteByMutualRequesterIdAndTargetId(UUID requesterId, UUID targetId);
+    int deleteByMutualIds(UUID requesterId, UUID targetId);
 }
