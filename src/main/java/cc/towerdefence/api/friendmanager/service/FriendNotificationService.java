@@ -6,12 +6,10 @@ import cc.towerdefence.api.service.velocity.VelocityNotificationReceiverGrpc;
 import cc.towerdefence.api.service.velocity.VelocityNotificationReceiverProto;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -28,7 +26,7 @@ public class FriendNotificationService {
     private final CoreV1Api kubernetesClient;
 
     @Async
-    public void notifyFriendAdd(UUID issuerId, UUID targetId) {
+    public void notifyFriendRequest(UUID issuerId, String issuerUsername, UUID targetId) {
         String targetServerIp = this.getServerIpForPlayer(targetId);
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(targetServerIp, 9090)
@@ -39,6 +37,7 @@ public class FriendNotificationService {
 
         stub.receiveFriendRequest(VelocityNotificationReceiverProto.ReceiveFriendRequestRequest.newBuilder()
                 .setSenderId(issuerId.toString())
+                .setSenderUsername(issuerUsername)
                 .setRecipientId(targetId.toString())
                 .build());
     }

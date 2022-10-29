@@ -22,7 +22,7 @@ dependencies {
     implementation("net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE") {
         exclude group: "io.grpc", module: "grpc-netty-shaded" // causes version conflicts, provided by the proto SDK
     }
-    implementation("cc.towerdefence.api:grpc-sdk:22f2328")
+    implementation("cc.towerdefence.api:grpc-sdk:52b2daf")
     implementation('io.kubernetes:client-java:16.0.1')
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")

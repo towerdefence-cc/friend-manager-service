@@ -8,9 +8,6 @@ import cc.towerdefence.api.service.FriendProto;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import cc.towerdefence.api.friendmanager.utils.Pair;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +23,7 @@ public class FriendService {
 
     public Pair<FriendProto.AddFriendResponse.AddFriendResult, FriendConnection> addFriendRequest(FriendProto.AddFriendRequest request) {
         UUID issuerId = UUID.fromString(request.getIssuerId());
+        String issuerUsername = request.getIssuerUsername();
         UUID targetId = UUID.fromString(request.getTargetId());
 
         // check if already sent a friend request to target
@@ -48,18 +46,19 @@ public class FriendService {
         if (privacyBlocked) return Pair.of(FriendProto.AddFriendResponse.AddFriendResult.PRIVACY_BLOCKED, null);
 
         // Add pending friend request/connection
-        this.createPendingFriendConnection(issuerId, targetId);
+        this.createPendingFriendConnection(issuerId, issuerUsername, targetId);
         return Pair.of(FriendProto.AddFriendResponse.AddFriendResult.REQUEST_SENT, null);
     }
 
     private FriendConnection createFriendConnection(UUID issuerId, UUID targetId) {
-        this.notificationService.notifyFriendAdd(issuerId, targetId);
+        // todo notify friend add
         this.pendingFriendConnectionRepository.deleteByMutualRequesterIdAndTargetId(issuerId, targetId); // use mutual so it doesn't matter what around they are.
         return this.friendConnectionRepository.insert(new FriendConnection(ObjectId.get(), issuerId, targetId));
     }
 
-    private void createPendingFriendConnection(UUID requesterId, UUID targetId) {
-        this.pendingFriendConnectionRepository.insert(new PendingFriendConnection(ObjectId.get(), requesterId, targetId));
+    private void createPendingFriendConnection(UUID issuerId, String issuerUsername, UUID targetId) {
+        this.notificationService.notifyFriendRequest(issuerId, issuerUsername, targetId);
+        this.pendingFriendConnectionRepository.insert(new PendingFriendConnection(ObjectId.get(), issuerId, targetId));
     }
 
     public FriendProto.RemoveFriendResponse.RemoveFriendResult removeFriendRequest(FriendProto.RemoveFriendRequest request) {
