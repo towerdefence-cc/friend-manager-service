@@ -47,14 +47,15 @@ public class FriendNotificationService {
 
         System.out.println("Response: " + response);
 
-        String serverId = response.getServer().getServerId();
-        System.out.println("Server ID: " + serverId);
+        String proxyId = response.getServer().getProxyId();
+        System.out.println("Proxy ID: " + proxyId);
 
         try {
-            V1Pod pod = this.kubernetesClient.readNamespacedPod(serverId, "towerdefence", null);
+            V1Pod pod = this.kubernetesClient.readNamespacedPod(proxyId, "towerdefence", null);
             System.out.println("Pod: " + pod);
             return pod.getSpec().getHostname();
         } catch (ApiException e) {
+            System.out.println("Exception: " + e.getCode() + " " + e.getMessage() + " " + e.getResponseBody() + " " + e.getLocalizedMessage());
             e.printStackTrace();
             return null;
         }
