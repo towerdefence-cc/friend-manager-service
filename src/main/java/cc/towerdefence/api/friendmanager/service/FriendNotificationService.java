@@ -7,6 +7,7 @@ import cc.towerdefence.api.service.velocity.VelocityNotificationReceiverProto;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,6 @@ public class FriendNotificationService {
                 .build());
     }
 
-    @SneakyThrows
     public String getServerIpForPlayer(UUID playerId) {
         System.out.println("Getting server for player " + playerId);
         PlayerTrackerProto.GetPlayerServerResponse response = this.playerTracker.getPlayerServer(PlayerTrackerProto.GetPlayerServerRequest.newBuilder()
@@ -50,9 +50,13 @@ public class FriendNotificationService {
         String serverId = response.getServer().getServerId();
         System.out.println("Server ID: " + serverId);
 
-        V1Pod pod = this.kubernetesClient.readNamespacedPod(serverId, "default", null);
-        System.out.println("Pod: " + pod);
-
-        return pod.getSpec().getHostname();
+        try {
+            V1Pod pod = this.kubernetesClient.readNamespacedPod(serverId, "default", null);
+            System.out.println("Pod: " + pod);
+            return pod.getSpec().getHostname();
+        } catch (ApiException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
