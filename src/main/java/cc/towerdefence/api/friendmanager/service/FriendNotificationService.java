@@ -6,6 +6,7 @@ import cc.towerdefence.api.service.velocity.VelocityNotificationReceiverGrpc;
 import cc.towerdefence.api.service.velocity.VelocityNotificationReceiverProto;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FriendNotificationService {
     private final PlayerTrackerGrpc.PlayerTrackerBlockingStub playerTracker;
-    private final CoreV1Api kubernetesClient = new CoreV1Api();
+    private final CoreV1Api kubernetesClient;
 
     @Async
     public void notifyFriendAdd(UUID issuerId, UUID targetId) {

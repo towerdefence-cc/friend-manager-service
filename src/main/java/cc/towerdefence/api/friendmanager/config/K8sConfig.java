@@ -28,4 +28,9 @@ public class K8sConfig {
         io.kubernetes.client.openapi.Configuration.setDefaultApiClient(apiClient);
         return apiClient;
     }
+
+    @Bean
+    public CoreV1Api coreV1Api(ApiClient client) {
+        return new CoreV1Api(client);
+    }
 }
