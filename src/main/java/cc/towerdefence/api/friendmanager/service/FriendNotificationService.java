@@ -39,6 +39,7 @@ public class FriendNotificationService {
 
     @SneakyThrows
     public String getServerIpForPlayer(UUID playerId) {
+        System.out.println("Getting server for player " + playerId);
         PlayerTrackerProto.GetPlayerServerResponse response = this.playerTracker.getPlayerServer(PlayerTrackerProto.GetPlayerServerRequest.newBuilder()
                 .setPlayerId(playerId.toString())
                 .build());

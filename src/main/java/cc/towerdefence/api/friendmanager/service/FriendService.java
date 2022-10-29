@@ -30,7 +30,7 @@ public class FriendService {
 
         // check if already sent a friend request to target
         boolean alreadyRequested = this.pendingFriendConnectionRepository.findByRequesterIdAndTargetId(issuerId, targetId).isPresent();
-        if (alreadyRequested) return Pair.of(FriendProto.AddFriendResponse.AddFriendResult.ALREADY_REQUESTED, null);
+//        if (alreadyRequested) return Pair.of(FriendProto.AddFriendResponse.AddFriendResult.ALREADY_REQUESTED, null); todo temp disabled
 
         // check if already friends
         boolean alreadyFriends = this.friendConnectionRepository.areFriends(issuerId, targetId);
