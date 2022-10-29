@@ -61,7 +61,7 @@ public class FriendService {
         this.pendingFriendConnectionRepository.insert(new PendingFriendConnection(ObjectId.get(), issuerId, targetId));
     }
 
-    public FriendProto.RemoveFriendResponse.RemoveFriendResult removeFriendRequest(FriendProto.RemoveFriendRequest request) {
+    public FriendProto.RemoveFriendResponse.RemoveFriendResult removeFriend(FriendProto.RemoveFriendRequest request) {
         UUID issuerId = UUID.fromString(request.getIssuerId());
         UUID targetId = UUID.fromString(request.getTargetId());
 
@@ -69,6 +69,17 @@ public class FriendService {
 
         return deleteResult == 1 ? FriendProto.RemoveFriendResponse.RemoveFriendResult.REMOVED
                 : FriendProto.RemoveFriendResponse.RemoveFriendResult.NOT_FRIENDS;
+    }
+
+    public FriendProto.DenyFriendRequestResponse.DenyFriendRequestResult denyFriendRequest(FriendProto.DenyFriendRequestRequest request) {
+        UUID issuerId = UUID.fromString(request.getIssuerId());
+        UUID targetId = UUID.fromString(request.getTargetId());
+
+        // bidirectional so we can allow the command to revoke both an outgoing and incoming request.
+        int recordsDeleted = this.pendingFriendConnectionRepository.deleteByMutualRequesterIdAndTargetId(issuerId, targetId);
+
+        return recordsDeleted == 1 ? FriendProto.DenyFriendRequestResponse.DenyFriendRequestResult.DENIED
+                : FriendProto.DenyFriendRequestResponse.DenyFriendRequestResult.NO_REQUEST;
     }
 
     public List<FriendConnection> getFriends(UUID playerId) {

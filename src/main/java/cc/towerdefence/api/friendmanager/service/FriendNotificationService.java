@@ -2,8 +2,8 @@ package cc.towerdefence.api.friendmanager.service;
 
 import cc.towerdefence.api.service.PlayerTrackerGrpc;
 import cc.towerdefence.api.service.PlayerTrackerProto;
-import cc.towerdefence.api.service.velocity.VelocityNotificationReceiverGrpc;
-import cc.towerdefence.api.service.velocity.VelocityNotificationReceiverProto;
+import cc.towerdefence.api.service.velocity.VelocityFriendGrpc;
+import cc.towerdefence.api.service.velocity.VelocityFriendProto;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.kubernetes.client.openapi.ApiException;
@@ -33,9 +33,9 @@ public class FriendNotificationService {
                 .usePlaintext()
                 .build();
 
-        VelocityNotificationReceiverGrpc.VelocityNotificationReceiverBlockingStub stub = VelocityNotificationReceiverGrpc.newBlockingStub(channel);
+        VelocityFriendGrpc.VelocityFriendBlockingStub stub = VelocityFriendGrpc.newBlockingStub(channel);
 
-        stub.receiveFriendRequest(VelocityNotificationReceiverProto.ReceiveFriendRequestRequest.newBuilder()
+        stub.receiveFriendRequest(VelocityFriendProto.ReceiveFriendRequestRequest.newBuilder()
                 .setSenderId(issuerId.toString())
                 .setSenderUsername(issuerUsername)
                 .setRecipientId(targetId.toString())

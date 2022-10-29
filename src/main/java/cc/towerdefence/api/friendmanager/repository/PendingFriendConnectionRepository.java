@@ -20,8 +20,8 @@ public interface PendingFriendConnectionRepository extends MongoRepository<Pendi
     @Query("{$or: [ {'requesterId': ?0}, {'targetId': ?0} ]}")
     List<PendingFriendConnection> findByPlayerId(UUID playerId, Sort sort);
 
-    void deleteByRequesterIdAndTargetId(UUID requesterId, UUID targetId);
+    int deleteByRequesterIdAndTargetId(UUID requesterId, UUID targetId);
 
     @Query(value = "{$and: [{$or: [ {'requesterId': ?0}, {'requesterId': ?1} ]}, {$or: [ {'targetId': ?0}, {'targetId': ?1} ]}]}", delete = true)
-    void deleteByMutualRequesterIdAndTargetId(UUID requesterId, UUID targetId);
+    int deleteByMutualRequesterIdAndTargetId(UUID requesterId, UUID targetId);
 }

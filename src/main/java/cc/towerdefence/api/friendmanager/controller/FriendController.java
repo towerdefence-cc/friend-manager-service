@@ -38,7 +38,15 @@ public class FriendController extends FriendGrpc.FriendImplBase {
     @Override
     public void removeFriend(FriendProto.RemoveFriendRequest request, StreamObserver<FriendProto.RemoveFriendResponse> responseObserver) {
         responseObserver.onNext(FriendProto.RemoveFriendResponse.newBuilder()
-                .setResult(this.friendService.removeFriendRequest(request))
+                .setResult(this.friendService.removeFriend(request))
+                .build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void denyFriendRequest(FriendProto.DenyFriendRequestRequest request, StreamObserver<FriendProto.DenyFriendRequestResponse> responseObserver) {
+        responseObserver.onNext(FriendProto.DenyFriendRequestResponse.newBuilder()
+                .setResult(this.friendService.denyFriendRequest(request))
                 .build());
         responseObserver.onCompleted();
     }
