@@ -59,11 +59,11 @@ public class FriendController extends FriendGrpc.FriendImplBase {
         List<FriendProto.FriendListResponse.FriendListPlayer> friends = result
                 .stream()
                 .map(friendConnection -> {
-                    UUID friendId = friendConnection.getPlayerOneId().equals(issuerId) ? friendConnection.getPlayerTwoId() : friendConnection.getPlayerOneId();
-                    return FriendProto.FriendListResponse.FriendListPlayer.newBuilder()
-                            .setId(friendId.toString())
-                            .setFriendsSince(Timestamp.newBuilder().setSeconds(friendConnection.getId().getTimestamp()).build())
-                            .build();
+                            UUID friendId = friendConnection.getPlayerOneId().equals(issuerId) ? friendConnection.getPlayerTwoId() : friendConnection.getPlayerOneId();
+                            return FriendProto.FriendListResponse.FriendListPlayer.newBuilder()
+                                    .setId(friendId.toString())
+                                    .setFriendsSince(Timestamp.newBuilder().setSeconds(friendConnection.getId().getTimestamp()).build())
+                                    .build();
                         }
                 ).toList();
 
@@ -75,8 +75,8 @@ public class FriendController extends FriendGrpc.FriendImplBase {
     }
 
     @Override
-    public void getPendingFriendRequestList(FriendProto.PlayerRequest request, StreamObserver<FriendProto.PendingFriendListResponse> responseObserver) {
-        List<PendingFriendConnection> result = this.friendService.getPendingFriendRequests(UUID.fromString(request.getIssuerId()));
+    public void getPendingFriendRequestList(FriendProto.GetPendingFriendRequestListRequest request, StreamObserver<FriendProto.PendingFriendListResponse> responseObserver) {
+        List<PendingFriendConnection> result = this.friendService.getPendingFriendRequests(UUID.fromString(request.getIssuerId()), request.getIncoming());
 
         List<FriendProto.PendingFriendListResponse.RequestedFriendPlayer> friends = result
                 .stream()
@@ -91,6 +91,14 @@ public class FriendController extends FriendGrpc.FriendImplBase {
                 .addAllRequests(friends)
                 .build());
 
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void massDenyFriendRequest(FriendProto.MassDenyFriendRequestRequest request, StreamObserver<FriendProto.MassDenyFriendRequestResponse> responseObserver) {
+        responseObserver.onNext(FriendProto.MassDenyFriendRequestResponse.newBuilder()
+                .setRequestsDenied(this.friendService.massDenyFriendRequest(UUID.fromString(request.getIssuerId()), request.getIncoming()))
+                .build());
         responseObserver.onCompleted();
     }
 }

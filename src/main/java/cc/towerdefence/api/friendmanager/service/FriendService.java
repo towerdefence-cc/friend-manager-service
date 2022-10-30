@@ -87,7 +87,19 @@ public class FriendService {
         return this.friendConnectionRepository.findByPlayerId(playerId, Sort.by(Sort.Direction.DESC, "_id"));
     }
 
-    public List<PendingFriendConnection> getPendingFriendRequests(UUID playerId) {
-        return this.pendingFriendConnectionRepository.findByPlayerId(playerId, Sort.by(Sort.Direction.DESC, "_id"));
+    public List<PendingFriendConnection> getPendingFriendRequests(UUID issuerId, boolean incoming) {
+        if (incoming) {
+            return this.pendingFriendConnectionRepository.findAllByTargetId(issuerId, Sort.by(Sort.Direction.DESC, "_id"));
+        } else {
+            return this.pendingFriendConnectionRepository.findAllByRequesterId(issuerId, Sort.by(Sort.Direction.DESC, "_id"));
+        }
+    }
+
+    public int massDenyFriendRequest(UUID issuerId, boolean incoming) {
+        if (incoming) {
+            return this.pendingFriendConnectionRepository.deleteAllByTargetId(issuerId);
+        } else {
+            return this.pendingFriendConnectionRepository.deleteAllByRequesterId(issuerId);
+        }
     }
 }
