@@ -1,5 +1,5 @@
 plugins {
-    id("org.springframework.boot") version "2.7.4"
+    id("org.springframework.boot") version "2.7.5"
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
 
     id("java")
@@ -22,15 +22,15 @@ dependencies {
     implementation("net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE") {
         exclude group: "io.grpc", module: "grpc-netty-shaded" // causes version conflicts, provided by the proto SDK
     }
-    implementation("cc.towerdefence.api:grpc-sdk:1d10933")
-    implementation('io.kubernetes:client-java:16.0.1')
+    implementation("cc.towerdefence.api:grpc-sdk:46c9b02")
+    implementation('io.kubernetes:client-java:16.0.2')
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 bootBuildImage {
-    imageName = "server-discovery:dev"
+    imageName = "friend-manager-service:dev"
 
     docker {
         publishRegistry {

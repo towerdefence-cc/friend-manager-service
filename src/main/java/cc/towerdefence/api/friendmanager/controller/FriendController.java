@@ -53,7 +53,7 @@ public class FriendController extends FriendGrpc.FriendImplBase {
 
     @Override
     public void getFriendList(FriendProto.PlayerRequest request, StreamObserver<FriendProto.FriendListResponse> responseObserver) {
-        UUID issuerId = UUID.fromString(request.getIssuerId());
+        UUID issuerId = UUID.fromString(request.getPlayerId());
         List<FriendConnection> result = this.friendService.getFriends(issuerId);
 
         List<FriendProto.FriendListResponse.FriendListPlayer> friends = result

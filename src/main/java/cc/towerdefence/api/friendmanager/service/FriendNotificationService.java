@@ -77,7 +77,7 @@ public class FriendNotificationService {
     }
 
     public Optional<String> getServerIpForPlayer(UUID playerId) {
-        PlayerTrackerProto.GetPlayerServerResponse response = this.playerTracker.getPlayerServer(PlayerTrackerProto.GetPlayerServerRequest.newBuilder()
+        PlayerTrackerProto.GetPlayerServerResponse response = this.playerTracker.getPlayerServer(PlayerTrackerProto.PlayerRequest.newBuilder()
                 .setPlayerId(playerId.toString())
                 .build());
 
